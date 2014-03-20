@@ -167,8 +167,8 @@ class Crop(object):
             return []
         return map(_int, launch_times.split(', '))
 
-    def _sessions(self)
-        croplog = CropLog('/home/olpc/.sugar/.olpc-launch-stats', session_crop,
+    def _sessions(self):
+        croplog = CropLog('/home/olpc/.olpc-launch-stats', session_crop,
                           self._start, self._end)
         sessions = croplog.collect()
         return sessions
