@@ -106,7 +106,9 @@ class Harvest(object):
 
         if message.status_code == 200:
             return True
-        self._logger.debug('could not send data: %d', message.status_code)
+        self._logger.debug('could not send data with code %d, %s',
+                           (message.status_code,
+                            Soup.status_get_phrase(message.status_code)))
         return False
 
     def _retry_valid(self):
