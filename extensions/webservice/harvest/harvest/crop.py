@@ -147,7 +147,7 @@ class Crop(object):
         instance.append(_int(entry.metadata.get('creation_time', None)))
         instance.append(_int(entry.metadata.get('timestamp', None)))
         instance.append(self._buddies(entry))
-        instance.append(None)
+        instance.append(_int(entry.metadata.get('spent_time', None)))
         instance.append(_bool(entry.metadata.get('share-scope', None)))
         instance.append(_bool(entry.metadata.get('title_set_by_user', None)))
         instance.append(_bool(entry.metadata.get('keep', None)))
