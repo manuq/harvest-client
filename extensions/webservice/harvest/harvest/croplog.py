@@ -3,6 +3,40 @@ import os
 import json
 import bisect
 
+def gnome_crop(lines):
+    data = {}
+    partials = {}
+    timestamps = {}
+
+    for line in lines:
+        if ' ' not in line:
+            continue
+
+        split = line.split(' ')
+        time, description = float(split[0]), split[1]
+        app_name = ' '.join(split[2:])
+
+        if description == 'START':
+            timestamps[app_name] = int(time)
+
+        if description not in ('ACTIVATE', 'DEACTIVATE'):
+            continue
+
+        if app_name not in data.keys():
+            data[app_name] = 0
+
+        if description == 'ACTIVATE':
+            partials[app_name] = time
+        else:
+            duration = time - partials[app_name]
+            data[app_name] += duration
+
+    result = []
+    for app_name, duration in data.items():
+        name = ' '.join(app_name.split(' ')[1:])
+        result.append([timestamps[app_name], int(duration), name])
+    return result
+
 def session_crop(lines):
     data = []
     cur_data = None
@@ -48,22 +82,13 @@ class CropLog(object):
 
 __test__ = dict(allem="""
 
->>> lines = "1394741547 START_SUGAR\\n" + \\
-...         "1394741550 END\\n" + \\
-...         "1394741587 START_GNOME\\n" + \\
-...         "1394741626 START_SUGAR\\n" + \\
-...         "1394741629 END\\n" + \\
-...         "1394741683 START_SUGAR\\n"
-
->>> session_crop(lines.split('\\n'))
-[[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True], [1394741683, None, True]]
-
->>> json.dumps(session_crop(lines.split('\\n')))
-'[[1394741547, 3, true], [1394741587, null, false], [1394741626, 3, true], [1394741683, null, true]]'
-
->>> crop = CropLog('croplog_test.data', session_crop)
+>>> crop = CropLog('croplog_test_session.data', session_crop)
 >>> crop.collect()
 [[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True], [1394741683, None, True]]
+
+>>> crop = CropLog('croplog_test_gnome.data', gnome_crop)
+>>> crop.collect()
+[[1400501023, 9, 'Terminal'], [1400501033, 47, 'inkscape'], [1400501069, 25, 'inkscape']]
 
 """)
 
