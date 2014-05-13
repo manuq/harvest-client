@@ -145,7 +145,6 @@ class Crop(object):
         instance.append(_int(entry.metadata.get('creation_time', None)))
         instance.append(_int(entry.metadata.get('timestamp', None)))
         instance.append(self._buddies(entry))
-        instance.append(None)
         instance.append(_bool(entry.metadata.get('share-scope', None)))
         instance.append(_bool(entry.metadata.get('title_set_by_user', None)))
         instance.append(_bool(entry.metadata.get('keep', None)))
@@ -160,10 +159,19 @@ class Crop(object):
         return len(json.loads(buddies).values())
 
     def _launches(self, entry):
-        launch_times = entry.metadata.get('launch-times', None)
-        if not launch_times:
+        metadata_list = entry.metadata.get('launch-times', None)
+        if metadata_list is None:
             return []
-        return map(_int, launch_times.split(', '))
+
+        metadata_list = map(_int, metadata_list.split(', '))
+
+        spents_list = entry.metadata.get('spent-times', None)
+        if spents_list is None:
+            spents_list = [None for i in metadata_list]
+        else:
+            spents_list = map(_int, spents_list.split(', '))
+
+        return zip(metadata_list, spents_list)
 
 
 def _bool(value):
