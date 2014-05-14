@@ -22,6 +22,7 @@ from gi.repository import GConf
 
 from sugar3.datastore import datastore
 
+from croplog import CropLog, session_crop
 
 class CropErrorNotReady:
     pass
@@ -68,6 +69,7 @@ class Crop(object):
         self._data.append(self._laptop())
         self._data.append(self._learner())
         self._data.append(self._activities())
+        self._data.append(self._sessions())
 
     def _laptop(self):
         laptop = []
@@ -172,6 +174,13 @@ class Crop(object):
             spents_list = map(_int, spents_list.split(', '))
 
         return zip(metadata_list, spents_list)
+
+
+    def _sessions(self):
+        croplog = CropLog('/home/olpc/.olpc-launch-stats', session_crop,
+                          self._start, self._end)
+        sessions = croplog.collect()
+        return sessions
 
 
 def _bool(value):
