@@ -73,9 +73,12 @@ class CropLog(object):
 
     def collect(self):
         if self._data is None:
-            with open(self._filename) as f:
-                alist = [line.rstrip() for line in f]
-                self._data = self._crop_method(alist)
+            try:
+                with open(self._filename) as f:
+                    alist = [line.rstrip() for line in f]
+                    self._data = self._crop_method(alist)
+            except IOError:
+                return []
 
         return self._data
 
@@ -89,6 +92,10 @@ __test__ = dict(allem="""
 >>> crop = CropLog('croplog_test_gnome.data', gnome_crop)
 >>> crop.collect()
 [[1400501023, 9, 'Terminal'], [1400501033, 47, 'inkscape'], [1400501069, 25, 'inkscape']]
+
+>>> crop = CropLog('unexistent_file.data', session_crop)
+>>> crop.collect()
+[]
 
 """)
 
