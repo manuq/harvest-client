@@ -22,7 +22,7 @@ from gi.repository import GConf
 
 from sugar3.datastore import datastore
 
-from croplog import CropLog, session_crop, gnome_crop
+from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
 
 class CropErrorNotReady:
     pass
@@ -71,6 +71,7 @@ class Crop(object):
         self._data.append(self._activities())
         self._data.append(self._gnome_apps())
         self._data.append(self._sessions())
+        self._data.append(self._connectivity())
 
     def _laptop(self):
         laptop = []
@@ -183,6 +184,11 @@ class Crop(object):
 
     def _sessions(self):
         croplog = CropLog('/home/olpc/.olpc-launch-stats', session_crop,
+                          self._start, self._end)
+        return croplog.collect()
+
+    def _connectivity(self):
+        croplog = CropLog('/home/olpc/.olpc-connectivity', connectivity_crop,
                           self._start, self._end)
         return croplog.collect()
 

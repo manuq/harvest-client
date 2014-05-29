@@ -3,6 +3,8 @@ import os
 import json
 import bisect
 
+from connectivitycrop import connectivity_crop
+
 def gnome_crop(lines):
     data = {}
     partials = {}
@@ -96,6 +98,17 @@ __test__ = dict(allem="""
 >>> crop = CropLog('unexistent_file.data', session_crop)
 >>> crop.collect()
 []
+
+>>> crop = CropLog('croplog_test_connectivity.data', connectivity_crop)
+>>> data = crop.collect()
+>>> len(data)
+2
+
+>>> data[0]
+['4C:72:B9:3C:4B:D3', -57.0, 65.0, 6, 2.412, 24279, 5980, 11360528, 2481986]
+
+>>> data[1]
+['4C:72:B9:3C:4B:D3', -55.5, 65.0, 13, 2.412, 18164, 6410, 11980015, 3039494]
 
 """)
 
