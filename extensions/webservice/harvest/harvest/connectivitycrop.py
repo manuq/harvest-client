@@ -73,6 +73,8 @@ def connectivity_crop(lines):
     data = []
     data_groups = group(input_data, 12)
     for grp in data_groups:
+        timestamp = int(grp[0][0])
+
         ap_common = most_frequent(list(i[1] for i in grp))
         sl_median = median(list(float(i[2]) for i in grp))
         br_median = median(list(float(i[3]) for i in grp))
@@ -96,7 +98,7 @@ def connectivity_crop(lines):
         rx_diff = int(grp[-1][6]) - int(grp[0][6])
         tx_diff = int(grp[-1][7]) - int(grp[0][7])
 
-        data.append([ap_common, sl_median, br_median, ret_diff, freq,
+        data.append([timestamp, ap_common, sl_median, br_median, ret_diff, freq,
                      rx_median, tx_median, rx_diff, tx_diff])
 
     return data
