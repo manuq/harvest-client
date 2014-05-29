@@ -102,23 +102,6 @@ def connectivity_crop(lines):
     return data
 
 
-class CropLog(object):
-    def __init__(self, filename, crop_method, start=None, end=None):
-        self._filename = filename
-        self._crop_method = crop_method
-        self._start = start
-        self._end = end
-        self._data = None
-
-    def collect(self):
-        if self._data is None:
-            with open(self._filename) as f:
-                alist = [line.rstrip() for line in f]
-                self._data = self._crop_method(alist)
-
-        return self._data
-
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
