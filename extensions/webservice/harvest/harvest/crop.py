@@ -116,12 +116,15 @@ class Crop(object):
         client = GConf.Client.get_default()
         age = client.get_int(self.AGE_PATH)
         if not age:
-            return None
+            return 0
         return age
 
     def _gender(self):
         client = GConf.Client.get_default()
-        return client.get_string(self.GENDER_PATH)
+        gender = client.get_string(self.GENDER_PATH)
+        if not gender:
+            return ''
+        return gender
 
     def _activities(self):
         activities = {}
