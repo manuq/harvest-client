@@ -71,7 +71,7 @@ class Crop(object):
         self._data.append(self._activities())
         self._data.append(self._gnome_apps())
         self._data.append(self._sessions())
-        self._data.append(self._connectivity())
+        #self._data.append(self._connectivity())
 
     def _laptop(self):
         laptop = []
