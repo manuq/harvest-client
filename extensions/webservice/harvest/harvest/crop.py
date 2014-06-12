@@ -18,11 +18,23 @@ import os
 import json
 import hashlib
 
+is_dextrose = None
+try:
+    import ceibal.laptops
+except ImportError:
+    is_dextrose = False
+else:
+    is_dextrose = True
+
 from gi.repository import GConf
 
 from sugar3.datastore import datastore
 
 from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
+
+MFG_DATA_F18 = "/proc/device-tree/mfg-data/U#"
+MFG_DATA_F14 = "/ofw/mfg-data/U#"
+
 
 class CropErrorNotReady:
     pass
@@ -76,6 +88,9 @@ class Crop(object):
     def _laptop(self):
         laptop = []
         laptop.append(self._serial_number())
+        laptop.append(self._uuid())
+        laptop.append(self._model())
+        laptop.append(self._update_version())
         laptop.append(self._build())
         laptop.append(self._updated())
         laptop.append(self._collected())
@@ -91,6 +106,32 @@ class Crop(object):
             with open(path, 'r') as file:
                 return hashlib.sha1(file.read().rstrip('\0\n')).hexdigest()
         return None
+
+    def _uuid(self):
+        if not is_dextrose:
+            return None
+
+        xo = ceibal.laptops.XO()
+        is_dextrose4 = (xo._update_type == '4_0b')
+        mfg_data = None
+        if is_dextrose4:
+            mfg_data = MFG_DATA_F18
+        else:
+            mfg_data = MFG_DATA_F14
+        f = open(mfg_data)
+        return f.read().replace('\x00', '')
+
+    def _model(self):
+        if not is_dextrose:
+            return None
+        xo = ceibal.laptops.XO()
+        return xo._model.replace('\x00', '')
+
+    def _update_version(self):
+        if not is_dextrose:
+            return None
+        xo = ceibal.laptops.XO()
+        return xo.get_update_version(xo._update_type)
 
     def _build(self):
         if os.path.exists(self.BUILD_PATH):
