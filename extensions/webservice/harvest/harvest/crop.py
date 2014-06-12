@@ -112,7 +112,7 @@ class Crop(object):
             return None
 
         xo = ceibal.laptops.XO()
-        is_dextrose4 = (xo._update_type == '4_0b')
+        is_dextrose4 = ('b' in xo._update_type)
         mfg_data = None
         if is_dextrose4:
             mfg_data = MFG_DATA_F18
