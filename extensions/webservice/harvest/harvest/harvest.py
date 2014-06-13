@@ -22,7 +22,7 @@ import urlparse
 from gi.repository import GConf
 from gi.repository import Soup
 
-from .crop import Crop
+from .crop import Crop, clean_logs
 from .errors import MissingInfoError
 from .errors import NotSelectedError
 from .errors import TooSoonError
@@ -188,4 +188,5 @@ class Harvest(object):
             self._save_crop(crop, timestamp)
             raise SendError()
         self._save_time(self.TIMESTAMP, timestamp)
+        clean_logs()
         self._logger.info('successfully collected.')

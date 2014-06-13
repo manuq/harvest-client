@@ -35,6 +35,8 @@ from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
 MFG_DATA_F18 = "/proc/device-tree/mfg-data/U#"
 MFG_DATA_F14 = "/ofw/mfg-data/U#"
 
+GNOME_APPS_LOG = '/home/olpc/.olpc-gnome-stats'
+SESSIONS_LOG = '/home/olpc/.olpc-launch-stats'
 
 class CropErrorNotReady:
     pass
@@ -222,12 +224,12 @@ class Crop(object):
         return zip(metadata_list, spents_list)
 
     def _gnome_apps(self):
-        croplog = CropLog('/home/olpc/.olpc-gnome-stats', gnome_crop,
+        croplog = CropLog(GNOME_APPS_LOG, gnome_crop,
                           self._start, self._end)
         return croplog.collect()
 
     def _sessions(self):
-        croplog = CropLog('/home/olpc/.olpc-launch-stats', session_crop,
+        croplog = CropLog(SESSIONS_LOG, session_crop,
                           self._start, self._end)
         return croplog.collect()
 
@@ -235,6 +237,11 @@ class Crop(object):
         croplog = CropLog('/home/olpc/.olpc-connectivity', connectivity_crop,
                           self._start, self._end)
         return croplog.collect()
+
+
+def clean_logs():
+    for log_path in (GNOME_APPS_LOG, SESSIONS_LOG):
+        open(log_path, 'w').close()
 
 
 def _bool(value):
