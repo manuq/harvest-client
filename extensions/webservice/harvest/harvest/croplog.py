@@ -55,6 +55,9 @@ def session_crop(lines):
             cur_data = [int(time), None, description == 'START_SUGAR']
 
         elif description == 'END':
+            if cur_data is None:
+                continue
+
             cur_data[1] = int(time) - cur_data[0]
             data.append(cur_data)
             cur_data = None
