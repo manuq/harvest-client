@@ -177,7 +177,7 @@ class Crop(object):
             if activity_id not in activities:
                 activities[activity_id] = []
             activities[activity_id].append(self._instance(entry))
-        return activities
+        return self._process_activities(activities)
 
     def _query(self):
         query = {}
@@ -189,39 +189,29 @@ class Crop(object):
         return query
 
     def _instance(self, entry):
-        instance = []
-        instance.append(entry.get_object_id())
-        instance.append(_int(entry.metadata.get('filesize', None)))
-        instance.append(_int(entry.metadata.get('creation_time', None)))
-        instance.append(_int(entry.metadata.get('timestamp', None)))
-        instance.append(self._buddies(entry))
-        instance.append(_bool(entry.metadata.get('share-scope', None)))
-        instance.append(_bool(entry.metadata.get('title_set_by_user', None)))
-        instance.append(_bool(entry.metadata.get('keep', None)))
-        instance.append(_str(entry.metadata.get('mime_type', None)))
-        instance.append(self._launches(entry))
-        return instance
+        timestamp = _int(entry.metadata.get('timestamp', None))
 
-    def _buddies(self, entry):
-        buddies = entry.metadata.get('buddies', None)
-        if not buddies:
-            return None
-        return len(json.loads(buddies).values())
-
-    def _launches(self, entry):
-        metadata_list = entry.metadata.get('launch-times', None)
-        if metadata_list is None:
-            return []
-
-        metadata_list = map(_int, metadata_list.split(', '))
-
+        spents = None
         spents_list = entry.metadata.get('spent-times', None)
-        if spents_list is None:
-            spents_list = [None for i in metadata_list]
-        else:
-            spents_list = map(_int, spents_list.split(', '))
+        if spents_list is not None:
+            spents = sum(map(_int, spents_list.split(', ')))
 
-        return zip(metadata_list, spents_list)
+        count = None
+        metadata_list = entry.metadata.get('launch-times', None)
+        if metadata_list is not None:
+            count = len(metadata_list.split(', '))
+
+        return [timestamp, spents, count]
+
+    def _process_instances(self, instances):
+        timestamps, spents, counts = zip(*instances)
+        return _min(timestamps), _sum(spents), _sum(counts)
+
+    def _process_activities(self, activities):
+        new_activities = {}
+        for activity_id, instances_data in activities.items():
+            new_activities[activity_id] = self._process_instances(instances_data)
+        return new_activities
 
     def _gnome_apps(self):
         croplog = CropLog(GNOME_APPS_LOG, gnome_crop,
@@ -257,6 +247,28 @@ def _int(value):
         return None
     return int(value)
 
+def _min(iterable):
+    if None not in iterable:
+        return min(iterable)
+    min_value = None
+    for value in iterable:
+        if value is None:
+            continue
+        if min_value is None or value < min_value:
+            min_value = value
+    return min_value
+
+def _sum(iterable):
+    if None not in iterable:
+        return sum(iterable)
+    result = None
+    for value in iterable:
+        if value is None:
+            continue
+        if result is None:
+            result = 0
+        result += value
+    return result
 
 def _str(value):
     if not value:
