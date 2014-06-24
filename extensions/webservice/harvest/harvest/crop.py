@@ -66,7 +66,7 @@ class Crop(object):
     def grown(self):
         if not self._data:
             raise CropErrorNotReady()
-        if not self._data[2].keys() or not self._data[3] or not self._data[4]:
+        if not self._data[2].keys() and not self._data[3] and not self._data[4]:
             return False
         return True
 
