@@ -36,7 +36,7 @@ def gnome_crop(lines):
     result = []
     for app_name, duration in data.items():
         name = ' '.join(app_name.split(' ')[1:])
-        result.append([timestamps[app_name], int(duration), name])
+        result.append([timestamps[app_name], int(duration), 1, name])
     return result
 
 def session_crop(lines):
@@ -96,7 +96,7 @@ __test__ = dict(allem="""
 
 >>> crop = CropLog('croplog_test_gnome.data', gnome_crop)
 >>> crop.collect()
-[[1400501023, 9, 'Terminal'], [1400501033, 47, 'inkscape'], [1400501069, 25, 'inkscape']]
+[[1400501023, 9, 1, 'Terminal'], [1400501033, 47, 1, 'inkscape'], [1400501069, 25, 1, 'inkscape']]
 
 >>> crop = CropLog('unexistent_file.data', session_crop)
 >>> crop.collect()
