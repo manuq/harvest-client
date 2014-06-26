@@ -16,7 +16,6 @@
 
 import os
 import json
-import hashlib
 
 is_dextrose = None
 try:
@@ -106,7 +105,7 @@ class Crop(object):
             path = self.X86_SN_PATH
         if path is not None:
             with open(path, 'r') as file:
-                return hashlib.sha1(file.read().rstrip('\0\n')).hexdigest()
+                return file.read().rstrip('\0\n')
         return None
 
     def _uuid(self):
