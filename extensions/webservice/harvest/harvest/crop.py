@@ -126,7 +126,12 @@ class Crop(object):
         if not is_dextrose:
             return None
         xo = ceibal.laptops.XO()
-        return xo._model.replace('\x00', '')
+        model = None
+        if hasattr(xo, '_model'):
+            model = xo._model.replace('\x00', '')
+        else:
+            model = ceibal.laptops.get_model_laptop().replace('\x00', '')
+        return model
 
     def _update_version(self):
         if not is_dextrose:
