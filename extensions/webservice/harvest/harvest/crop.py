@@ -176,7 +176,7 @@ class Crop(object):
             if activity_id not in activities:
                 activities[activity_id] = []
             activities[activity_id].append(self._instance(entry))
-        return self._process_activities(activities)
+        return activities
 
     def _query(self):
         query = {}
@@ -201,16 +201,6 @@ class Crop(object):
             count = len(metadata_list.split(', '))
 
         return [timestamp, spents, count]
-
-    def _process_instances(self, instances):
-        timestamps, spents, counts = zip(*instances)
-        return _min(timestamps), _sum(spents), _sum(counts)
-
-    def _process_activities(self, activities):
-        new_activities = {}
-        for activity_id, instances_data in activities.items():
-            new_activities[activity_id] = self._process_instances(instances_data)
-        return new_activities
 
     def _gnome_apps(self):
         croplog = CropLog(GNOME_APPS_LOG, gnome_crop,
@@ -245,29 +235,6 @@ def _int(value):
     if not value:
         return None
     return int(value)
-
-def _min(iterable):
-    if None not in iterable:
-        return min(iterable)
-    min_value = None
-    for value in iterable:
-        if value is None:
-            continue
-        if min_value is None or value < min_value:
-            min_value = value
-    return min_value
-
-def _sum(iterable):
-    if None not in iterable:
-        return sum(iterable)
-    result = None
-    for value in iterable:
-        if value is None:
-            continue
-        if result is None:
-            result = 0
-        result += value
-    return result
 
 def _str(value):
     if not value:
