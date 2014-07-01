@@ -19,7 +19,7 @@ import time
 import random
 import urlparse
 
-from gi.repository import GConf
+from harvest_dextrose import get_gconf_default_client
 from gi.repository import Soup
 
 from .crop import Crop, clean_logs
@@ -60,7 +60,7 @@ class Harvest(object):
         self._version_path = os.path.join(path, self.VERSION_FILE)
         self._logger = get_logger()
 
-        client = GConf.Client.get_default()
+        client = get_gconf_default_client()
         self._not_enabled = client.get_bool(self.NOT_ENABLED)
         self._frequency = client.get_int(self.FREQUENCY) or self.WEEKLY
         self._timestamp = client.get_int(self.TIMESTAMP)
@@ -75,7 +75,7 @@ class Harvest(object):
         return False
 
     def _save_time(self, path, timestamp):
-        client = GConf.Client.get_default()
+        client = get_gconf_default_client()
         client.set_int(path, timestamp)
 
     def _selected(self):
@@ -90,7 +90,7 @@ class Harvest(object):
 
     def _retry_in(self, timestamp):
         """ retry allowed between 45 and 75 minutes since timestamp """
-        return (timestamp + self.DELAY + (self.OFFSET * random.random()))
+        return int(timestamp + self.DELAY + (self.OFFSET * random.random()))
 
     def _send(self, data):
         uri = Soup.URI.new(urlparse.urljoin(self._hostname, self.ENDPOINT))

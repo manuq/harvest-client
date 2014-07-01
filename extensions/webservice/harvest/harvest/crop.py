@@ -17,20 +17,17 @@
 import os
 import json
 
-is_dextrose = None
-try:
+from harvest_dextrose import is_dextrose, dextrose_version
+from harvest_dextrose import get_gconf_default_client
+from harvest_dextrose import get_serial_number
+
+if is_dextrose:
     import ceibal.laptops
-except ImportError:
-    is_dextrose = False
-else:
-    is_dextrose = True
 
-from gi.repository import GConf
-
-try:
-    from sugar3.datastore import datastore
-except ImportError:
+if dextrose_version == "dextrose3":
     from sugar.datastore import datastore
+else:
+    from sugar3.datastore import datastore
 
 from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
 
@@ -101,6 +98,9 @@ class Crop(object):
         return laptop
 
     def _serial_number(self):
+        if is_dextrose:
+            return get_serial_number()
+
         path = None
         if os.path.exists(self.ARM_SN_PATH):
             path = self.ARM_SN_PATH
@@ -163,14 +163,14 @@ class Crop(object):
         return learner
 
     def _age(self):
-        client = GConf.Client.get_default()
+        client = get_gconf_default_client()
         age = client.get_int(self.AGE_PATH)
         if not age:
             return 0
         return age
 
     def _gender(self):
-        client = GConf.Client.get_default()
+        client = get_gconf_default_client()
         gender = client.get_string(self.GENDER_PATH)
         if not gender:
             return ''
