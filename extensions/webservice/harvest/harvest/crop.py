@@ -27,7 +27,10 @@ else:
 
 from gi.repository import GConf
 
-from sugar3.datastore import datastore
+try:
+    from sugar3.datastore import datastore
+except ImportError:
+    from sugar.datastore import datastore
 
 from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
 
