@@ -7,4 +7,4 @@ sys.path.append("/usr/share/sugar/extensions/webservice/harvest/")
 import harvest.harvest
 
 harvest = harvest.harvest.Harvest()
-harvest.collect(forced=True)
+harvest.collect()#forced=True)
