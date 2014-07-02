@@ -20,7 +20,7 @@ import random
 import urlparse
 
 from harvest_dextrose import get_gconf_default_client
-from gi.repository import Soup
+from harvest_dextrose import Sender
 
 from .crop import Crop, clean_logs
 from .errors import MissingInfoError
@@ -91,24 +91,15 @@ class Harvest(object):
     def _retry_in(self, timestamp):
         """ retry allowed between 45 and 75 minutes since timestamp """
         return int(timestamp + self.DELAY + (self.OFFSET * random.random()))
-
     def _send(self, data):
-        uri = Soup.URI.new(urlparse.urljoin(self._hostname, self.ENDPOINT))
-        message = Soup.Message(method='POST', uri=uri)
-        message.request_headers.append('x-api-key', self._api_key)
-        message.set_request('application/json',
-                            Soup.MemoryUse.COPY,
-                            data, len(data))
+        url = urlparse.urljoin(self._hostname, self.ENDPOINT)
+        sender = Sender(url, data, self._api_key)
+        status_code, status_description = sender.send()
 
-        session = Soup.SessionSync()
-        session.add_feature_by_type(Soup.ProxyResolverDefault)
-        session.send_message(message)
-
-        if message.status_code == 200:
+        if status_code == 200:
             return True
         self._logger.debug('could not send data with code %d, %s',
-                           (message.status_code,
-                            Soup.status_get_phrase(message.status_code)))
+                           (status_code, status_description))
         return False
 
     def _retry_valid(self):
@@ -135,7 +126,7 @@ class Harvest(object):
         self._logger.debug('saved crop to %s.' % self._crop_path)
 
     def _restore_crop(self):
-        timestamp = os.stat(self._crop_path).st_mtime
+        timestamp = int(os.stat(self._crop_path).st_mtime)
         with open(self._crop_path, 'r') as file:
             crop = file.read()
         os.remove(self._version_path)
