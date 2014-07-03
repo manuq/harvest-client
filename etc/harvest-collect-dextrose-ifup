@@ -1,7 +1,6 @@
 #!/bin/sh
 
 if [ "$2" = "up" ]; then
-    export SUGAR_LOGGER_LEVEL=debug
     export DISPLAY=:0
-    sudo -u olpc -i bash -c "/usr/sbin/harvest-collect"
+    sudo -u olpc -i bash -c "SUGAR_LOGGER_LEVEL=debug /usr/sbin/harvest-collect"
 fi
