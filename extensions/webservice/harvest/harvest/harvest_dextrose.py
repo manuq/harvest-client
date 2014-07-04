@@ -72,8 +72,8 @@ class SenderOriginal(object):
 
     def send(self):
         self._session.send_message(self._message)
-        status_description = Soup.status_get_phrase(message.status_code)
-        return message.status_code, status_description
+        status_description = Soup.status_get_phrase(self._message.status_code)
+        return self._message.status_code, status_description
 
 
 if is_dextrose and dextrose_version == "dextrose3":
