@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "$2" = "up" ]; then
+    export SUGAR_LOGGER_LEVEL=debug
+    export DISPLAY=:0
+    export PATH=$PATH:/usr/sbin
+    runuser -m olpc -c "harvest-collect"
+fi
