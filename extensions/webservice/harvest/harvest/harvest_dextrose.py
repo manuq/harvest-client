@@ -1,3 +1,5 @@
+import os
+
 is_dextrose = None
 dextrose_version = None
 try:
@@ -7,13 +9,48 @@ except ImportError:
 else:
     is_dextrose = True
 
-if is_dextrose:
+def _read_file(path):
+    if os.access(path, os.R_OK) == 0:
+        return None
+
+    fd = open(path, 'r')
+    value = fd.read()
+    fd.close()
+    if value:
+        value = value.strip('\n')
+        return value
+    else:
+        return None
+
+def get_build():
     xo = ceibal.laptops.XO()
-    build = xo._build
-    if "Version-b" in build:
-        dextrose_version = "dextrose4"
-    elif "Version-a" in build:
-        dextrose_version = "dextrose3"
+    build_no = xo._build
+    if build_no is not None:
+            return build_no
+
+    if os.path.isfile('/boot/olpc_build'):
+        build_no = _read_file('/boot/olpc_build')
+    elif os.path.isfile('/bootpart/olpc_build'):
+        build_no = _read_file('/bootpart/olpc_build')
+
+    if build_no is None:
+        build_no = _read_file('/etc/redhat-release')
+
+    return build_no
+
+def get_dextrose_version(build):
+    if "Version-b" in build or "Dextrose 4" in build:
+        return "dextrose4"
+    elif "Version-a" in build or "Dextrose 3" in build:
+        return "dextrose3"
+    else:
+        return None
+
+if is_dextrose:
+    # please make this always match harvest-ceibal script
+    # in instalador-harvest-ceibal
+    build = get_build()
+    dextrose_version = get_dextrose_version(build)
 
 if is_dextrose and dextrose_version == "dextrose3":
     import gconf
