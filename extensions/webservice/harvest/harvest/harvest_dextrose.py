@@ -72,6 +72,12 @@ def get_serial_number():
     xo = ceibal.laptops.XO()
     return xo._sn
 
+def get_uuid():
+    if os.path.isfile('/proc/device-tree/mfg-data/U#'):
+        return _read_file('/proc/device-tree/mfg-data/U#')
+    elif os.path.isfile('/ofw/mfg-data/U#'):
+        return _read_file('/ofw/mfg-data/U#')
+
 
 class SenderDx3(object):
     def __init__(self, url, data, api_key):

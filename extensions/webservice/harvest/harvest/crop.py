@@ -20,6 +20,7 @@ import json
 from harvest_dextrose import is_dextrose, dextrose_version
 from harvest_dextrose import get_gconf_default_client
 from harvest_dextrose import get_serial_number
+from harvest_dextrose import get_uuid
 
 if is_dextrose:
     import ceibal.laptops
@@ -30,9 +31,6 @@ else:
     from sugar3.datastore import datastore
 
 from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
-
-MFG_DATA_F18 = "/proc/device-tree/mfg-data/U#"
-MFG_DATA_F14 = "/ofw/mfg-data/U#"
 
 GNOME_APPS_LOG = '/home/olpc/.olpc-gnome-stats'
 SESSIONS_LOG = '/home/olpc/.olpc-launch-stats'
@@ -115,15 +113,7 @@ class Crop(object):
         if not is_dextrose:
             return None
 
-        xo = ceibal.laptops.XO()
-        is_dextrose4 = ('b' in xo._update_type)
-        mfg_data = None
-        if is_dextrose4:
-            mfg_data = MFG_DATA_F18
-        else:
-            mfg_data = MFG_DATA_F14
-        f = open(mfg_data)
-        return f.read().replace('\x00', '')
+        return get_uuid()
 
     def _model(self):
         if not is_dextrose:
