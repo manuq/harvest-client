@@ -43,10 +43,25 @@ def gnome_crop(lines):
         elif description == 'DEACTIVATE':
             previous = None
 
-    result = []
+    partial_result = {}
     for app, duration in durations.items():
+        time = timestamps[app]
+        duration = int(duration)
         app_name = app[1]
-        result.append([timestamps[app], int(duration), 1, app_name])
+
+        if app_name not in partial_result.keys():
+            partial_result[app_name] = [time, duration, 1]
+        else:
+            prev_time, prev_duration, prev_count = partial_result[app_name]
+            new_time = min(time, prev_time)
+            new_duration = prev_duration + duration
+            new_count = prev_count + 1
+            partial_result[app_name] = [new_time, new_duration, new_count]
+
+    result = []
+    for app_name, data in partial_result.items():
+        result.append(data + [app_name])
+
     return result
 
 def session_crop(lines):
@@ -107,6 +122,10 @@ __test__ = dict(allem="""
 >>> crop = CropLog('croplog_test_gnome.data', gnome_crop)
 >>> crop.collect()
 [[1405084404, 35, 1, 'gcalctool'], [1405084398, 17, 1, 'Firefox'], [1405084453, 14, 1, 'gedit']]
+
+>>> crop = CropLog('croplog_test_gnome2.data', gnome_crop)
+>>> crop.collect()
+[[1405099608, 26, 2, 'gcalctool']]
 
 >>> crop = CropLog('unexistent_file.data', session_crop)
 >>> crop.collect()
