@@ -6,37 +6,47 @@ import bisect
 from connectivitycrop import connectivity_crop
 
 def gnome_crop(lines):
-    data = {}
-    partials = {}
+    durations = {}
     timestamps = {}
 
+    def parse_line(line):
+        split = line.split(' ')
+
+        time, description = float(split[0]), split[1]
+
+        app = None
+        if len(split) > 2:
+            app_id = split[2]
+            app_name = ' '.join(split[3:])
+            app = (app_id, app_name)
+
+        return time, description, app
+
+    previous = None
     for line in lines:
         if ' ' not in line:
             continue
 
-        split = line.split(' ')
-        time, description = float(split[0]), split[1]
-        app_name = ' '.join(split[2:])
+        time, description, app = parse_line(line)
 
-        if description == 'START':
-            timestamps[app_name] = int(time)
-
-        if description not in ('ACTIVATE', 'DEACTIVATE'):
-            continue
-
-        if app_name not in data.keys():
-            data[app_name] = 0
+        if previous is not None:
+            durations[previous['app']] += time - previous['time']
 
         if description == 'ACTIVATE':
-            partials[app_name] = time
-        else:
-            duration = time - partials[app_name]
-            data[app_name] += duration
+            assert app is not None
+            if app not in timestamps.keys():
+                timestamps[app] = int(time)
+                durations[app] = 0
+
+            previous = {'app': app, 'time': time}
+
+        elif description == 'DEACTIVATE':
+            previous = None
 
     result = []
-    for app_name, duration in data.items():
-        name = ' '.join(app_name.split(' ')[1:])
-        result.append([timestamps[app_name], int(duration), 1, name])
+    for app, duration in durations.items():
+        app_name = app[1]
+        result.append([timestamps[app], int(duration), 1, app_name])
     return result
 
 def session_crop(lines):
@@ -96,7 +106,7 @@ __test__ = dict(allem="""
 
 >>> crop = CropLog('croplog_test_gnome.data', gnome_crop)
 >>> crop.collect()
-[[1400501023, 9, 1, 'Terminal'], [1400501033, 47, 1, 'inkscape'], [1400501069, 25, 1, 'inkscape']]
+[[1405084404, 35, 1, 'gcalctool'], [1405084398, 17, 1, 'Firefox'], [1405084453, 14, 1, 'gedit']]
 
 >>> crop = CropLog('unexistent_file.data', session_crop)
 >>> crop.collect()
