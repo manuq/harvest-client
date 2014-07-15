@@ -34,10 +34,11 @@ class HarvestLogger(Logger):
     LOG_LEVEL = 'SUGAR_LOGGER_LEVEL'
 
     def __init__(self):
-        level = logging.INFO
-        if self.LOG_LEVEL in os.environ and \
-           os.environ[self.LOG_LEVEL] == 'debug':
-            level = logging.DEBUG
+        level = logging.DEBUG
+        # level = logging.INFO
+        # if self.LOG_LEVEL in os.environ and \
+        #    os.environ[self.LOG_LEVEL] == 'debug':
+        #     level = logging.DEBUG
 
         Logger.__init__(self, self.LOG_NAME, level)
 
