@@ -216,6 +216,12 @@ class Crop(object):
         return croplog.collect()
 
 
+def logs_are_clean():
+    for log_path in (GNOME_APPS_LOG, SESSIONS_LOG):
+        if os.path.exists(log_path) and os.stat(log_path).st_size > 0:
+            return False
+    return True
+
 def clean_logs():
     for log_path in (GNOME_APPS_LOG, SESSIONS_LOG):
         open(log_path, 'w').close()

@@ -22,7 +22,7 @@ import urlparse
 from harvest_dextrose import get_gconf_default_client
 from harvest_dextrose import Sender
 
-from .crop import Crop, clean_logs
+from .crop import Crop, clean_logs, logs_are_clean
 from .errors import MissingInfoError
 from .errors import NotSelectedError
 from .errors import TooSoonError
@@ -114,6 +114,8 @@ class Harvest(object):
         if version != Crop.VERSION:
             os.remove(self._crop_path)
             os.remove(self._version_path)
+            return False
+        if not logs_are_clean:
             return False
         return True
 
