@@ -30,9 +30,11 @@ if dextrose_version == "dextrose3":
 else:
     from sugar3.datastore import datastore
 
-from croplog import CropLog, session_crop, gnome_crop, connectivity_crop
+from croplog import CropLog,
+from croplog import session_crop, activities_crop, gnome_crop
 
 GNOME_APPS_LOG = '/home/olpc/.olpc-gnome-stats'
+SUGAR_ACTS_LOG = '/home/olpc/.olpc-sugar-stats'
 SESSIONS_LOG = '/home/olpc/.olpc-launch-stats'
 
 class CropErrorNotReady:
@@ -169,38 +171,9 @@ class Crop(object):
         return gender
 
     def _activities(self):
-        activities = {}
-        entries, count = datastore.find(self._query())
-        for entry in entries:
-            activity_id = entry.metadata.get('activity', '')
-            if activity_id not in activities:
-                activities[activity_id] = []
-            activities[activity_id].append(self._instance(entry))
-        return activities
-
-    def _query(self):
-        query = {}
-        query['timestamp'] = {}
-        if self._start:
-            query['timestamp']['start'] = self._start
-        if self._end:
-            query['timestamp']['end'] = self._end
-        return query
-
-    def _instance(self, entry):
-        timestamp = _int(entry.metadata.get('timestamp', None))
-
-        spents = None
-        spents_list = entry.metadata.get('spent-times', None)
-        if spents_list is not None:
-            spents = sum(map(_int, spents_list.split(', ')))
-
-        count = None
-        metadata_list = entry.metadata.get('launch-times', None)
-        if metadata_list is not None:
-            count = len(metadata_list.split(', '))
-
-        return [timestamp, spents, count]
+        croplog = CropLog(SUGAR_ACTS_LOG, activities_crop,
+                          self._start, self._end)
+        return croplog.collect()
 
     def _gnome_apps(self):
         croplog = CropLog(GNOME_APPS_LOG, gnome_crop,

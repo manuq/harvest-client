@@ -5,6 +5,14 @@ import bisect
 
 from connectivitycrop import connectivity_crop
 
+def activities_crop(lines):
+    partial = gnome_crop(lines)
+    result = {}
+    for time, duration, count, bundle_id in partial:
+        result[bundle_id] = [[time, duration, count]]
+    return result
+
+
 def gnome_crop(lines):
     durations = {}
     timestamps = {}
@@ -118,6 +126,12 @@ __test__ = dict(allem="""
 >>> crop = CropLog('croplog_test_session.data', session_crop)
 >>> crop.collect()
 [[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True], [1394741683, None, True]]
+
+>>> crop = CropLog('croplog_test_sugar.data', activities_crop)
+>>> list(sorted(crop.collect().items()))
+[('edu.mit.media.ScratchActivity', [[1405625079, 19, 1]]), ('org.laptop.JournalActivity', [[1405625058, 2, 1]]), ('org.laptop.Oficina', [[1405625023, 33, 1]]), ('tv.alterna.Clock', [[1405625054, 8, 1]])]
+
+[[1405084404, 35, 1, 'gcalctool'], [1405084398, 17, 1, 'Firefox'], [1405084453, 14, 1, 'gedit']]
 
 >>> crop = CropLog('croplog_test_gnome.data', gnome_crop)
 >>> crop.collect()
