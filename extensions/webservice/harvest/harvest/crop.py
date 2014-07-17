@@ -20,7 +20,7 @@ import json
 from harvest_dextrose import is_dextrose, dextrose_version
 from harvest_dextrose import get_gconf_default_client
 from harvest_dextrose import get_serial_number
-from harvest_dextrose import get_uuid
+from harvest_dextrose import get_uuid, get_build
 
 if is_dextrose:
     import ceibal.laptops
@@ -133,10 +133,12 @@ class Crop(object):
         return xo.get_update_version(xo._update_type)
 
     def _build(self):
-        if os.path.exists(self.BUILD_PATH):
-            with open(self.BUILD_PATH, 'r') as file:
-                return file.read().rstrip('\0\n')
-        return None
+        if not is_dextrose:
+            if os.path.exists(self.BUILD_PATH):
+                with open(self.BUILD_PATH, 'r') as file:
+                    return file.read().rstrip('\0\n')
+        else:
+            return get_build()
 
     def _updated(self):
         if os.path.exists(self.UPDATED_PATH):
