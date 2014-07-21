@@ -30,7 +30,7 @@ if dextrose_version == "dextrose3":
 else:
     from sugar3.datastore import datastore
 
-from croplog import CropLog,
+from croplog import CropLog
 from croplog import session_crop, activities_crop, gnome_crop
 
 GNOME_APPS_LOG = '/home/olpc/.olpc-gnome-stats'
@@ -192,13 +192,13 @@ class Crop(object):
 
 
 def logs_are_clean():
-    for log_path in (GNOME_APPS_LOG, SESSIONS_LOG):
+    for log_path in (GNOME_APPS_LOG, SUGAR_ACTS_LOG, SESSIONS_LOG):
         if os.path.exists(log_path) and os.stat(log_path).st_size > 0:
             return False
     return True
 
 def clean_logs():
-    for log_path in (GNOME_APPS_LOG, SESSIONS_LOG):
+    for log_path in (GNOME_APPS_LOG, SUGAR_ACTS_LOG, SESSIONS_LOG):
         open(log_path, 'w').close()
 
 
