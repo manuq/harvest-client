@@ -95,11 +95,17 @@ def session_crop(lines):
             data.append(cur_data)
             cur_data = None
 
-    if cur_data is not None:
-        data.append(cur_data)
-
     return data
 
+
+def keep_session_log(lines):
+    return len(lines) > 0 and 'START' in lines[-1]
+
+def clean_log(log_path, keep_last_line, line=None):
+    log_file = open(log_path, 'w')
+    if keep_last_line:
+        log_file.write(line + '\n')
+    log_file.close()
 
 class CropLog(object):
     def __init__(self, filename, crop_method, start=None, end=None):
@@ -125,7 +131,7 @@ __test__ = dict(allem="""
 
 >>> crop = CropLog('croplog_test_session.data', session_crop)
 >>> crop.collect()
-[[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True], [1394741683, None, True]]
+[[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True]]
 
 >>> crop = CropLog('croplog_test_sugar.data', activities_crop)
 >>> list(sorted(crop.collect().items()))
@@ -155,6 +161,16 @@ __test__ = dict(allem="""
 
 >>> data[1]
 [1400515615, '4C:72:B9:3C:4B:D3', -55.5, 65.0, 13, 2.412, 18164, 6410, 11980015, 3039494]
+
+>>> with open('croplog_test_session.data') as f:
+...     alist = [line.rstrip() for line in f]
+...     keep_session_log(alist)
+True
+
+>>> with open('croplog_test_session2.data') as f:
+...     alist = [line.rstrip() for line in f]
+...     keep_session_log(alist)
+False
 
 """)
 
