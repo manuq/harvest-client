@@ -103,21 +103,22 @@ class Harvest(object):
         return False
 
     def _retry_valid(self):
-        if not os.path.exists(self._crop_path):
-            return False
-        # don't use it if not sure about the version
-        if not os.path.exists(self._version_path):
-            os.remove(self._crop_path)
-            return False
-        with open(self._version_path, 'r') as file:
-            version = file.read()
-        if version != Crop.VERSION:
-            os.remove(self._crop_path)
-            os.remove(self._version_path)
-            return False
-        if not logs_are_clean:
-            return False
-        return True
+        return False
+        # if not os.path.exists(self._crop_path):
+        #     return False
+        # # don't use it if not sure about the version
+        # if not os.path.exists(self._version_path):
+        #     os.remove(self._crop_path)
+        #     return False
+        # with open(self._version_path, 'r') as file:
+        #     version = file.read()
+        # if version != Crop.VERSION:
+        #     os.remove(self._crop_path)
+        #     os.remove(self._version_path)
+        #     return False
+        # if not logs_are_clean:
+        #     return False
+        # return True
 
     def _save_crop(self, crop, timestamp):
         with open(self._crop_path, 'w') as file:
