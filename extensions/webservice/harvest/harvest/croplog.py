@@ -133,6 +133,10 @@ __test__ = dict(allem="""
 >>> crop.collect()
 [[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True]]
 
+>>> crop = CropLog('croplog_test_session2.data', session_crop)
+>>> crop.collect()
+[[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True]]
+
 >>> crop = CropLog('croplog_test_sugar.data', activities_crop)
 >>> list(sorted(crop.collect().items()))
 [('edu.mit.media.ScratchActivity', [[1405625079, 19, 1]]), ('org.laptop.JournalActivity', [[1405625058, 2, 1]]), ('org.laptop.Oficina', [[1405625023, 33, 1]]), ('tv.alterna.Clock', [[1405625054, 8, 1]])]
