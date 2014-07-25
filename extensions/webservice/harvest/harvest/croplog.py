@@ -149,7 +149,11 @@ __test__ = dict(allem="""
 
 >>> crop = CropLog('croplog_test_session3.data', session_crop)
 >>> crop.collect()
-[[1394741588, 2500, False], [1394762288, None, False], [1394809088, 900, False]]
+[[1394741588, 2480, False], [1394762288, None, False], [1394809088, 900, False]]
+
+>>> crop = CropLog('croplog_test_session4.data', session_crop)
+>>> crop.collect()
+[[1394741588, 2480, False], [1394762288, 4550, False], [1394809088, 900, False]]
 
 >>> crop = CropLog('croplog_test_sugar.data', activities_crop)
 >>> list(sorted(crop.collect().items()))
