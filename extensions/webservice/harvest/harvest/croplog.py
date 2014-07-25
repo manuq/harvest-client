@@ -75,25 +75,35 @@ def gnome_crop(lines):
 def session_crop(lines):
     data = []
     cur_data = None
+    previous_time = None
     for line in lines:
         if ' ' not in line:
             continue
 
         time, description = line.split(' ')
-        if description in ('START_SUGAR', 'START_GNOME'):
-            if cur_data is not None:
-                data.append(cur_data)
-                cur_data = None
 
-            cur_data = [int(time), None, description == 'START_SUGAR']
+        if description in ('START_SUGAR', 'START_GNOME', 'RESUME'):
+            previous_time = int(time)
 
-        elif description == 'END':
-            if cur_data is None:
+            if description in ('START_SUGAR', 'START_GNOME'):
+                if cur_data is not None:
+                    data.append(cur_data)
+                    cur_data = None
+
+                cur_data = [int(time), None, description == 'START_SUGAR']
+
+        elif description in ('END', 'SUSPEND'):
+            if cur_data is None or previous_time is None:
                 continue
 
-            cur_data[1] = int(time) - cur_data[0]
-            data.append(cur_data)
-            cur_data = None
+            if cur_data[1] == None:
+                cur_data[1] = 0
+
+            cur_data[1] += int(time) - previous_time
+
+            if description == 'END':
+                data.append(cur_data)
+                cur_data = None
 
     return data
 
@@ -136,6 +146,10 @@ __test__ = dict(allem="""
 >>> crop = CropLog('croplog_test_session2.data', session_crop)
 >>> crop.collect()
 [[1394741547, 3, True], [1394741587, None, False], [1394741626, 3, True]]
+
+>>> crop = CropLog('croplog_test_session3.data', session_crop)
+>>> crop.collect()
+[[1394741588, 2500, False], [1394762288, None, False], [1394809088, 900, False]]
 
 >>> crop = CropLog('croplog_test_sugar.data', activities_crop)
 >>> list(sorted(crop.collect().items()))
