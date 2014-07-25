@@ -108,14 +108,23 @@ def session_crop(lines):
     return data
 
 
-def keep_session_log(lines):
-    return len(lines) > 0 and 'START' in lines[-1]
+def clean_session_log(log_path, out_path=None):
+    if out_path is None:
+        out_path = log_path
 
-def clean_log(log_path, keep_last_line, line=None):
-    log_file = open(log_path, 'w')
-    if keep_last_line:
-        log_file.write(line + '\n')
-    log_file.close()
+    keep_lines = []
+    with open(log_path, 'r') as log_file:
+        lines = [line.rstrip() for line in log_file]
+        for line in lines:
+            if ' END' in line:
+                keep_lines = []
+            else:
+                keep_lines.append(line)
+
+    with open(out_path, 'w') as out_file:
+        for line in keep_lines:
+            out_file.write(line + '\n')
+
 
 class CropLog(object):
     def __init__(self, filename, crop_method, start=None, end=None):
@@ -129,8 +138,8 @@ class CropLog(object):
         if self._data is None:
             try:
                 with open(self._filename) as f:
-                    alist = [line.rstrip() for line in f]
-                    self._data = self._crop_method(alist)
+                    lines = [line.rstrip() for line in f]
+                    self._data = self._crop_method(lines)
             except IOError:
                 return []
 
@@ -184,15 +193,17 @@ __test__ = dict(allem="""
 >>> data[1]
 [1400515615, '4C:72:B9:3C:4B:D3', -55.5, 65.0, 13, 2.412, 18164, 6410, 11980015, 3039494]
 
->>> with open('croplog_test_session.data') as f:
-...     alist = [line.rstrip() for line in f]
-...     keep_session_log(alist)
+>>> clean_session_log('croplog_test_session.data', out_path='/tmp/test')
+>>> open('/tmp/test').readlines() == open('croplog_test_session_remain.data').readlines()
 True
 
->>> with open('croplog_test_session2.data') as f:
-...     alist = [line.rstrip() for line in f]
-...     keep_session_log(alist)
-False
+>>> clean_session_log('croplog_test_session2.data', out_path='/tmp/test')
+>>> open('/tmp/test').readlines() == []
+True
+
+>>> clean_session_log('croplog_test_session5.data', out_path='/tmp/test')
+>>> open('/tmp/test').readlines() == open('croplog_test_session5_remain.data').readlines()
+True
 
 """)
 
