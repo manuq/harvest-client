@@ -107,6 +107,19 @@ def session_crop(lines):
 
     return data
 
+def clean_acts_apps_log(log_path, out_path=None):
+    if out_path is None:
+        out_path = log_path
+
+    keep_lines = []
+    with open(log_path, 'r') as log_file:
+        lines = [line.rstrip() for line in log_file]
+        if ' ACTIVATE' in lines[-1]:
+            keep_lines.append(line)
+
+    with open(out_path, 'w') as out_file:
+        for line in keep_lines:
+            out_file.write(line)
 
 def clean_session_log(log_path, out_path=None):
     if out_path is None:
@@ -203,6 +216,10 @@ True
 
 >>> clean_session_log('croplog_test_session5.data', out_path='/tmp/test')
 >>> open('/tmp/test').readlines() == open('croplog_test_session5_remain.data').readlines()
+True
+
+>>> clean_acts_apps_log('croplog_test_gnome3.data', out_path='/tmp/test')
+>>> open('/tmp/test').readlines() == open('croplog_test_gnome3_remain.data').readlines()
 True
 
 """)

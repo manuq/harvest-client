@@ -32,7 +32,7 @@ else:
 
 from croplog import CropLog
 from croplog import session_crop, activities_crop, gnome_crop
-from croplog import clean_session_log
+from croplog import clean_session_log, clean_acts_apps_log
 
 GNOME_APPS_LOG = '/home/olpc/.olpc-gnome-stats'
 SUGAR_ACTS_LOG = '/home/olpc/.olpc-sugar-stats'
@@ -199,10 +199,9 @@ def logs_are_clean():
     return True
 
 def clean_logs():
-    for log_path in (GNOME_APPS_LOG, SUGAR_ACTS_LOG):
-        open(log_path, 'w').close()
-
     clean_session_log(SESSIONS_LOG)
+    clean_acts_apps_log(GNOME_APPS_LOG)
+    clean_acts_apps_log(SUGAR_ACTS_LOG)
 
 def _bool(value):
     if not value:
