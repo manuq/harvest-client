@@ -114,7 +114,7 @@ def clean_acts_apps_log(log_path, out_path=None):
     keep_lines = []
     with open(log_path, 'r') as log_file:
         lines = [line.rstrip() for line in log_file]
-        if ' ACTIVATE' in lines[-1]:
+        if (len(lines) > 0) and (' ACTIVATE' in lines[-1]):
             keep_lines.append(line)
 
     with open(out_path, 'w') as out_file:
