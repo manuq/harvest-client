@@ -52,6 +52,7 @@ class Crop(object):
     GENDER_PATH = '/desktop/sugar/user/gender'
     BUILD_PATH = '/boot/olpc_build'
     UPDATED_PATH = '/var/lib/misc/last_os_update.stamp'
+    VERSION_PATH = '/usr/share/sugar/extensions/webservice/harvest/harvest/harvest-version'
 
     def __init__(self, start=None, end=None):
         self._start = start
@@ -96,6 +97,7 @@ class Crop(object):
         laptop.append(self._build())
         laptop.append(self._updated())
         laptop.append(self._collected())
+        laptop.append(self._harvest_version())
         return laptop
 
     def _serial_number(self):
@@ -150,6 +152,12 @@ class Crop(object):
 
     def _collected(self):
         return self._end
+
+    def _harvest_version(self):
+        if os.path.exists(self.VERSION_PATH) is not None:
+            with open(self.VERSION_PATH, 'r') as file:
+                return file.read().rstrip('\0\n')
+        return None
 
     def _learner(self):
         learner = []
