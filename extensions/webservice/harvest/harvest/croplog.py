@@ -16,6 +16,8 @@ def activities_crop(lines):
 def gnome_crop(lines):
     durations = {}
     timestamps = {}
+    corrupts = {}
+    timestamps_corrupts = {}
 
     def parse_line(line):
         split = line.split(' ')
@@ -31,6 +33,8 @@ def gnome_crop(lines):
         return time, description, app
 
     previous = None
+    corrupt = False
+
     for line in lines:
         if ' ' not in line:
             continue
@@ -38,19 +42,37 @@ def gnome_crop(lines):
         time, description, app = parse_line(line)
 
         if previous is not None:
-            durations[previous['app']] += time - previous['time']
+            if corrupt:
+                corrupt = False
+            else:
+                durations[previous['app']] += time - previous['time']
+       
+        #Logica para ver el siguiente elemento en la lista y chequear si es un START de la sesion
+        nextelem = None
+        description_next = 'NULL'
+
+        if ((lines.index(line) + 1) <= (len(lines)-1)):
+            nextelem = lines[lines.index(line) + 1]
+            time_next, description_next, app_next = parse_line(nextelem)        
+
 
         if description == 'ACTIVATE':
-            assert app is not None
-            if app not in timestamps.keys():
-                timestamps[app] = int(time)
-                durations[app] = 0
+            if (description_next != 'START_SUGAR' and description_next != 'START_GNOME'):
+                assert app is not None
+                if app not in timestamps.keys():
+                    timestamps[app] = int(time)
+                    durations[app] = 0
+            else:
+                assert app is not None
+                if app not in timestamps.keys():
+                    corrupt = True
+                    corrupts[app] = int(time)
 
             previous = {'app': app, 'time': time}
 
-        elif description == 'DEACTIVATE':
+        if description == 'DEACTIVATE' or description == 'START_SUGAR' or description == 'START_GNOME': 
             previous = None
-
+    
     partial_result = {}
     for app, duration in durations.items():
         time = timestamps[app]
@@ -67,6 +89,20 @@ def gnome_crop(lines):
             partial_result[app_name] = [new_time, new_duration, new_count]
 
     result = []
+
+    partial_corrupts = {}
+    for app in corrupts.items():
+        app_namec = app[0][1]
+        if app_namec not in partial_corrupts.keys():
+            partial_corrupts[app_namec] = [app[1], -1, 1]
+        else:
+            prev_timec, prev_durationc, prev_countc = partial_corrupts[app_namec]
+            new_countc = prev_countc + 1
+            partial_corrupts[app_namec] = [app[1], -1, new_countc]
+        
+    for app_namec, data in partial_corrupts.items():
+        result.append(data + [app_namec])
+
     for app_name, data in partial_result.items():
         result.append(data + [app_name])
 
@@ -190,6 +226,10 @@ __test__ = dict(allem="""
 >>> crop = CropLog('croplog_test_gnome2.data', gnome_crop)
 >>> crop.collect()
 [[1405099608, 26, 2, 'gcalctool']]
+
+>>> crop = CropLog('croplog_test_gnome3.data', gnome_crop)
+>>> crop.collect()
+[[1410278400, 3600, 1, 'gcalctool']]
 
 >>> crop = CropLog('unexistent_file.data', session_crop)
 >>> crop.collect()
